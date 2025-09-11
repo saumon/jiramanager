@@ -1,0 +1,75 @@
+#!/usr/bin/env ruby
+
+# frozen_string_literal: true
+
+$LOAD_PATH.unshift "#{File.dirname(__FILE__)}/../lib"
+
+require 'jiramanager'
+require 'optparse'
+
+# Main class...
+class Main
+  def initialize
+    show_version
+    auto_update
+    options = read_options
+
+    ## Go go go !
+    Jiramanager.new.main(options)
+  end
+
+  def read_options
+    options = {}
+
+    options[:force] = false
+
+    OptionParser.new do |opts|
+      opts.banner = 'usage: jiramanager [options]'
+      opts.separator ''
+      opts.separator 'Options:'
+      opts.on('-a', '--all', 'Check all epics consistency') do |v|
+        options[:all] = v
+      end
+      opts.on('-b', '--bug', 'Check all bugs consistency') do |v|
+        options[:bug] = v
+      end
+      opts.on('-e', '--epic', 'Check epic consistency') do |v|
+        options[:epic] = v
+      end
+      opts.on('-f', '--force', 'Skip confirmation') do
+        options[:force] = true
+      end
+      opts.on_tail('-h', '--help', 'Show this message') do
+        puts opts
+        exit
+      end
+      opts.on('-o', '--other', 'Check others (without epic)') do |v|
+        options[:other] = v
+      end
+      opts.on('-t', '--ticket', 'Check all tickets') do |v|
+        options[:ticket] = v
+      end
+      opts.on('-w', '--weekly', 'Get weekly delivery report (notion formatted)') do |v|
+        options[:weekly] = v
+      end
+      opts.on('-s', '--sentry', 'Get sentry report (notion formatted)') do |v|
+        options[:sentry] = v
+      end
+    end.parse!
+
+    options
+  end
+
+  def show_version
+    ## show version
+    system("#{File.dirname(__FILE__)}/../../showversion.sh")
+  end
+
+  def auto_update
+    ## auto update
+    system("#{File.dirname(__FILE__)}/../../auto_update.sh")
+  end
+end
+
+# Go go go!
+Main.new
