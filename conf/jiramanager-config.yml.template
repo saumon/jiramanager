@@ -1,0 +1,2 @@
+jira_secret: 'Basic BASE64-JIRA-API-KEY'
+jira_baseurl: 'https://your-domain.atlassian.net'

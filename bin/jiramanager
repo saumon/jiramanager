@@ -1,0 +1,40 @@
+#!/usr/bin/env ruby
+
+# frozen_string_literal: true
+
+$LOAD_PATH.unshift "#{File.dirname(__FILE__)}/../lib"
+
+require 'jiramanager'
+require 'optparse'
+
+# Main class...
+class Main
+  def initialize
+    options = read_options
+
+    ## Go go go !
+    Jiramanager.new.main(options)
+  end
+
+  def read_options
+    options = {}
+
+    OptionParser.new do |opts|
+      opts.banner = 'usage: jiramanager [options]'
+      opts.separator ''
+      opts.separator 'Options:'
+      opts.on('-e', '--email EMAIL', 'List tickets assigned to the specified email') do |email|
+        options[:email] = email
+      end
+      opts.on_tail('-h', '--help', 'Show this message') do
+        puts opts
+        exit
+      end
+    end.parse!
+
+    options
+  end
+end
+
+# Go go go!
+Main.new
