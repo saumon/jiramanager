@@ -36,15 +36,32 @@ class Jiramanager
   def main(options)
     @options = options
 
-    elapsed_time = Benchmark.realtime do
-      if @options[:email]
-        assignee_tickets_for_email(email: @options[:email])
-      else
-        assignee_tickets
+    # If no options provided, show welcome menu in loop
+    if @options.empty?
+      loop do
+        menu_result = welcome_menu
+        case menu_result[:action]
+        when :exit
+          puts_byebye
+          return
+        when :my_tickets
+          execute_my_tickets
+        when :email_tickets
+          execute_email_tickets(menu_result[:email])
+        end
       end
+    else
+      # Execute once with command line options
+      elapsed_time = Benchmark.realtime do
+        if @options[:email]
+          assignee_tickets_for_email(email: @options[:email])
+        else
+          assignee_tickets
+        end
+      end
+      print italic "\nElapsed time: "
+      print italic brown "#{elapsed_time.round(3)}s\n"
     end
-    print italic "\nElapsed time: "
-    print italic brown "#{elapsed_time.round(3)}s\n"
   rescue Interrupt
     puts_byebye
   rescue RuntimeError => exception
@@ -71,5 +88,50 @@ class Jiramanager
       puts " - #{jira[:updated]} `#{jira[:status]}` #{jira[:key]} : #{jira[:summary]}"
     end
     puts bold(cyan("<<< #{__method__}"))
+  end
+
+  def execute_my_tickets
+    elapsed_time = Benchmark.realtime do
+      assignee_tickets
+    end
+    print italic "\nElapsed time: "
+    print italic brown "#{elapsed_time.round(3)}s\n"
+  end
+
+  def execute_email_tickets(email)
+    elapsed_time = Benchmark.realtime do
+      assignee_tickets_for_email(email: email)
+    end
+    print italic "\nElapsed time: "
+    print italic brown "#{elapsed_time.round(3)}s\n"
+  end
+
+  def welcome_menu
+    puts ''
+    puts bold(cyan('🎯 Welcome to JiraManager! 🎯'))
+    puts ''
+
+    options = [
+      'Show my assigned tickets',
+      'Show tickets assigned to a specific email',
+      'Exit'
+    ]
+
+    choice = select_item_from_array(options, 'What would you like to do?')
+
+    case choice
+    when 0
+      { action: :my_tickets }
+    when 1
+      print bold('Enter email address: ')
+      email = gets.chomp.strip
+      if email.empty?
+        puts red('Error: Email cannot be empty!')
+        return { action: :my_tickets }
+      end
+      { action: :email_tickets, email: email }
+    else
+      { action: :exit }
+    end
   end
 end
