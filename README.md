@@ -54,7 +54,14 @@ JiraManager is a simple and efficient Ruby utility that allows you to interact w
 
 1. Go to: <https://id.atlassian.com/manage-profile/security/api-tokens>
 2. Create a new API token
-3. Encode your credentials in Base64: `email:api_token`
+3. Encode your credentials in Base64:
+
+   ```bash
+   echo -n "email:api_token" | base64
+   ```
+
+   Replace `email` with your Jira email and `api_token` with your generated token
+
 4. Prefix with "Basic " in the configuration
 
 ## 🚀 Usage
