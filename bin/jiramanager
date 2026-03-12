@@ -19,8 +19,17 @@ class Main
   def read_options
     options = {}
 
+    # Check if the first argument is the "audit" subcommand
+    if ARGV.first == 'audit'
+      ARGV.shift
+      return read_audit_options
+    end
+
     OptionParser.new do |opts|
-      opts.banner = 'usage: jiramanager [options]'
+      opts.banner = 'usage: jiramanager [command] [options]'
+      opts.separator ''
+      opts.separator 'Commands:'
+      opts.separator '  audit    Audit a person\'s actions on Jira tickets during a date range'
       opts.separator ''
       opts.separator 'Options:'
       opts.on('-e', '--email EMAIL', 'List tickets assigned to the specified email') do |email|
@@ -31,9 +40,55 @@ class Main
       end
       opts.on_tail('-h', '--help', 'Show this message') do
         puts opts
+        puts ''
+        puts 'Run "jiramanager audit --help" for more information on the audit command.'
         exit
       end
     end.parse!
+
+    options
+  end
+
+  def read_audit_options
+    options = { action: :audit }
+
+    OptionParser.new do |opts|
+      opts.banner = 'usage: jiramanager audit [options]'
+      opts.separator ''
+      opts.separator 'Audit a person\'s actions on Jira tickets during a specific date range.'
+      opts.separator 'Retrieves all tickets assigned to the person during the period and displays'
+      opts.separator 'a detailed history of their actions (status changes, assignments, etc.).'
+      opts.separator ''
+      opts.separator 'Options:'
+      opts.on('-e', '--email EMAIL', 'Email of the person to audit (required)') do |email|
+        options[:audit_email] = email
+      end
+      opts.on('-s', '--start-date DATE', 'Start date in DD/MM/YYYY format (required)') do |date|
+        options[:audit_start_date] = date
+      end
+      opts.on('-d', '--end-date DATE', 'End date in DD/MM/YYYY format (required)') do |date|
+        options[:audit_end_date] = date
+      end
+      opts.on_tail('-h', '--help', 'Show this message') do
+        puts opts
+        puts ''
+        puts 'Example:'
+        puts '  jiramanager audit -e john.doe@example.com -s 01/01/2026 -d 31/03/2026'
+        exit
+      end
+    end.parse!
+
+    # Validate required options
+    missing = []
+    missing << '--email (-e)' unless options[:audit_email]
+    missing << '--start-date (-s)' unless options[:audit_start_date]
+    missing << '--end-date (-d)' unless options[:audit_end_date]
+
+    unless missing.empty?
+      puts "Error: missing required options: #{missing.join(', ')}"
+      puts 'Run "jiramanager audit --help" for usage information.'
+      exit 1
+    end
 
     options
   end
