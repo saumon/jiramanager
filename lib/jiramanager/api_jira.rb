@@ -70,4 +70,8 @@ class ApiJira
   def my_assignee_tickets
     query_jira_infinite('assignee = currentUser() ORDER BY updated DESC, status DESC, created DESC')
   end
+
+  def assignee_or_was_assignee_tickets(email:)
+    query_jira_infinite("assignee = '#{email}' OR assignee WAS '#{email}' ORDER BY updated DESC, status DESC, created DESC")
+  end
 end

@@ -26,6 +26,9 @@ class Main
       opts.on('-e', '--email EMAIL', 'List tickets assigned to the specified email') do |email|
         options[:email] = email
       end
+      opts.on('-a', '--assigned-or-was EMAIL', 'List tickets assigned or was assigned to the specified email') do |email|
+        options[:assigned_or_was] = email
+      end
       opts.on_tail('-h', '--help', 'Show this message') do
         puts opts
         exit

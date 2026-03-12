@@ -48,12 +48,16 @@ class Jiramanager
           execute_my_tickets
         when :email_tickets
           execute_email_tickets(menu_result[:email])
+        when :assignee_or_was_assignee_tickets
+          execute_assignee_or_was_assignee_tickets(menu_result[:email])
         end
       end
     else
       # Execute once with command line options
       elapsed_time = Benchmark.realtime do
-        if @options[:email]
+        if @options[:assigned_or_was]
+          assignee_or_was_assignee_tickets(email: @options[:assigned_or_was])
+        elsif @options[:email]
           assignee_tickets_for_email(email: @options[:email])
         else
           assignee_tickets
@@ -106,6 +110,24 @@ class Jiramanager
     print italic brown "#{elapsed_time.round(3)}s\n"
   end
 
+  def assignee_or_was_assignee_tickets(email:)
+    puts bold(cyan(">>> #{__method__} for #{email}"))
+    print "retrieving jira tickets assigned or was assigned to #{email}... "
+    array_jira = show_wait_spinner { @api_jira.assignee_or_was_assignee_tickets(email: email) }
+    array_jira.each do |jira|
+      puts " - #{jira[:updated]} `#{jira[:status]}` #{jira[:key]} : #{jira[:summary]}"
+    end
+    puts bold(cyan("<<< #{__method__}"))
+  end
+
+  def execute_assignee_or_was_assignee_tickets(email)
+    elapsed_time = Benchmark.realtime do
+      assignee_or_was_assignee_tickets(email: email)
+    end
+    print italic "\nElapsed time: "
+    print italic brown "#{elapsed_time.round(3)}s\n"
+  end
+
   def welcome_menu
     puts ''
     puts bold(cyan('🎯 Welcome to JiraManager! 🎯'))
@@ -114,6 +136,7 @@ class Jiramanager
     options = [
       'Show my assigned tickets',
       'Show tickets assigned to a specific email',
+      'Show tickets assigned or was assigned to a specific email',
       'Exit'
     ]
 
@@ -130,6 +153,14 @@ class Jiramanager
         return { action: :my_tickets }
       end
       { action: :email_tickets, email: email }
+    when 2
+      print bold('Enter email address: ')
+      email = gets.chomp.strip
+      if email.empty?
+        puts red('Error: Email cannot be empty!')
+        return { action: :my_tickets }
+      end
+      { action: :assignee_or_was_assignee_tickets, email: email }
     else
       { action: :exit }
     end

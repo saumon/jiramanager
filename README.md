@@ -10,6 +10,7 @@ JiraManager is a simple and efficient Ruby utility that allows you to interact w
 
 - 🎯 **Assigned ticket retrieval**: Display your Jira tickets with their status
 - 📧 **Email-based tickets**: Display tickets assigned to a specific email
+- 📧 **Email history search**: Display tickets assigned or previously assigned to a specific email
 - 🎨 **Colorful interface**: Terminal display with colors and visual indicators
 - ⚡ **Loading spinner**: Progress indicator during API requests
 
@@ -77,6 +78,7 @@ JiraManager is a simple and efficient Ruby utility that allows you to interact w
 | Option | Description |
 |--------|-------------|
 | `-e, --email EMAIL` | List tickets assigned to the specified email |
+| `-a, --assigned-or-was EMAIL` | List tickets assigned or was assigned to the specified email |
 | `-h, --help` | Show help message |
 
 ### Usage Examples
@@ -87,6 +89,9 @@ JiraManager is a simple and efficient Ruby utility that allows you to interact w
 
 # Display tickets assigned to a specific email
 ./bin/jiramanager --email john.doe@example.com
+
+# Display tickets assigned or was assigned to a specific email
+./bin/jiramanager --assigned-or-was john.doe@example.com
 
 # Show help
 ./bin/jiramanager --help
